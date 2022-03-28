@@ -1,2 +1,2 @@
 # JapaneseGraph
-A port of HanziGraph for Japanesee
+A port of HanziGraph for Japanese. Even more WIP than HanziGraph.
