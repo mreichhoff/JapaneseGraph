@@ -517,26 +517,6 @@
             let utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = "ja-JP";
             utterance.voice = ttsVoice;
-            utterance.addEventListener('boundary', function (event) {
-                if (event.charIndex == null || event.charLength == null) {
-                    return false;
-                }
-                for (let i = event.charIndex; i < event.charIndex + event.charLength; i++) {
-                    anchors[i].style.fontWeight = 'bold';
-                }
-                // anchors.forEach((character, index) => {
-                //     if (index >= event.charIndex && index < (event.charIndex + (event.charLength || 1))) {
-                //         character.style.fontWeight = 'bold';
-                //     } else {
-                //         character.style.fontWeight = 'normal';
-                //     }
-                // });
-            });
-            utterance.addEventListener('end', function () {
-                anchors.forEach(character => {
-                    character.style.fontWeight = 'normal';
-                });
-            });
             speechSynthesis.speak(utterance);
         }
     };
@@ -740,7 +720,7 @@
         if (!oldState) {
             //graph chosen is default, no need to modify legend or dropdown
             //add a default graph on page load to illustrate the concept
-            let defaultHanzi = ["成"];
+            let defaultHanzi = ["遠", "応", "援"];
             updateGraph(defaultHanzi[Math.floor(Math.random() * defaultHanzi.length)], levelSelector.value);
         } else {
             if (state.currentGraph) {
