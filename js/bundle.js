@@ -1047,7 +1047,7 @@
     const studyGraphDetail = document.getElementById('studied-graph-detail');
     const visitedGraphDetail = document.getElementById('visited-graph-detail');
 
-    let lastLevelUpdatePrefix = '';
+    let lastLevelUpdateGraph = '';
 
     function sameDay(d1, d2) {
         return d1.getUTCFullYear() == d2.getUTCFullYear() &&
@@ -1520,12 +1520,12 @@
     };
 
     let initialize = function () {
-        lastLevelUpdatePrefix = getActiveGraph().prefix;
+        lastLevelUpdateGraph = getActiveGraph().display;
         updateTotalsByLevel();
         statsShow.addEventListener('click', function () {
             let activeGraph = getActiveGraph();
-            if (activeGraph.prefix !== lastLevelUpdatePrefix) {
-                lastLevelUpdatePrefix = activeGraph.prefix;
+            if (activeGraph.display !== lastLevelUpdateGraph) {
+                lastLevelUpdateGraph = activeGraph.display;
                 updateTotalsByLevel();
             }
             mainContainer.style.display = 'none';
