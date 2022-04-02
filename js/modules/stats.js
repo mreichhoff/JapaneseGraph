@@ -191,16 +191,16 @@ let fillGapDays = function (daysWithData, originalData, defaultEntry) {
 let BarChartClickHandler = function (detail, totalsByLevel, prop, index, message) {
     detail.innerHTML = '';
     //TODO: why no built-in difference method?
-    let missingHanzi = new Set([...totalsByLevel[index + 1].characters].filter(x => !totalsByLevel[index + 1][prop].has(x)));
-    missingHanzi.forEach(x => message += x);
+    let missingKanji = new Set([...totalsByLevel[index + 1].characters].filter(x => !totalsByLevel[index + 1][prop].has(x)));
+    missingKanji.forEach(x => message += x);
     detail.innerHTML = message;
 };
 //could be an array, but we're possibly going to add out of order, and also trying to avoid hardcoding max level
 let totalsByLevel = {};
 let updateTotalsByLevel = function () {
     totalsByLevel = {};
-    Object.keys(hanzi).forEach(x => {
-        let level = hanzi[x].node[getActiveGraph().levelProperty];
+    Object.keys(kanji).forEach(x => {
+        let level = kanji[x].node[getActiveGraph().levelProperty];
         if (!(level in totalsByLevel)) {
             totalsByLevel[level] = { seen: new Set(), total: 0, visited: new Set(), characters: new Set() };
         }
@@ -216,8 +216,8 @@ let createCardGraphs = function (studyList, legend) {
         }
     });
     studyListCharacters.forEach(x => {
-        if (hanzi[x]) {
-            let level = hanzi[x].node[getActiveGraph().levelProperty];
+        if (kanji[x]) {
+            let level = kanji[x].node[getActiveGraph().levelProperty];
             totalsByLevel[level].seen.add(x);
         }
     });
@@ -265,7 +265,7 @@ let createCardGraphs = function (studyList, legend) {
             }
             addedByDay[day].total++;
             [...card.ja.join('')].forEach(character => {
-                if (hanzi[character] && !seenCharacters.has(character)) {
+                if (kanji[character] && !seenCharacters.has(character)) {
                     addedByDay[day].chars.add(character);
                     seenCharacters.add(character);
                 }
@@ -273,7 +273,7 @@ let createCardGraphs = function (studyList, legend) {
         } else {
             //cards are sorted with unknown add date at front, so safe to add all at the start
             [...card.ja.join('')].forEach(character => {
-                if (hanzi[character]) {
+                if (kanji[character]) {
                     seenCharacters.add(character);
                 }
             });
@@ -339,8 +339,8 @@ let createVisitedGraphs = function (visitedCharacters, legend) {
         return;
     }
     Object.keys(visitedCharacters).forEach(x => {
-        if (hanzi[x]) {
-            const level = hanzi[x].node[getActiveGraph().levelProperty];
+        if (kanji[x]) {
+            const level = kanji[x].node[getActiveGraph().levelProperty];
             totalsByLevel[level].visited.add(x);
         }
     });

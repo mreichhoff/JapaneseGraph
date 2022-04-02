@@ -4,14 +4,14 @@ import { showFaq, faqTypes } from "./faq.js";
 
 //TODO: like in other files, remove these dups
 const recommendationsContainer = document.getElementById('recommendations-container');
-const hanziBox = document.getElementById('hanzi-box');
+const kanjiBox = document.getElementById('kanji-box');
 let recommendationsWorker = null;
 
 let initialize = function () {
     recommendationsWorker = new Worker('js/modules/recommendations-worker.js');
     recommendationsWorker.postMessage({
         type: 'graph',
-        payload: window.hanzi
+        payload: window.kanji
     });
     recommendationsWorker.postMessage({
         type: 'visited',
@@ -45,8 +45,8 @@ let initialize = function () {
                 curr.className = 'recommendation';
                 curr.addEventListener('click', function (event) {
                     //can I do this?
-                    hanziBox.value = event.target.innerText;
-                    document.querySelector('#hanzi-choose input[type=submit]').click();
+                    kanjiBox.value = event.target.innerText;
+                    document.querySelector('#kanji-choose input[type=submit]').click();
                     event.target.style.display = 'none';
                     let otherRecs = document.querySelectorAll('.recommendation');
                     let stillShown = false;
@@ -80,7 +80,7 @@ let initialize = function () {
 let graphChanged = function () {
     recommendationsWorker.postMessage({
         type: 'graph',
-        payload: window.hanzi
+        payload: window.kanji
     });
 };
 let preferencesChanged = function (val) {
