@@ -10,7 +10,6 @@
     <script src="./js/data-load.js"></script>
     <script src="./js/external/cytoscape.min.js"></script>
     <script type="module" src="./js/modules/init.js"></script>
-    <script src="./data/definitions.js"></script>
     <link rel="stylesheet" type="text/css" href="css/japanese-graph.css">
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="images/favicon-32x32.png" type="image/x-icon">
@@ -37,14 +36,14 @@
             </div>
             <div id="example-container">
                 <div id="controls">
-                    <form id="hanzi-choose" class="control">
+                    <form id="kanji-choose" class="control">
                         <!-- i18n? what's that? -->
-                        <label for="hanzi-box">Choose a hanzi:</label>
-                        <input id="hanzi-box" type="text" maxlength="1" />
+                        <label for="kanji-box">Choose a kanji:</label>
+                        <input id="kanji-box" type="text" maxlength="1" />
                         <input type="submit" value="Go!" />
                     </form>
                     <div class="control center">
-                        <span class="text-button" id="previousHanziButton">Previous</span>
+                        <span class="text-button" id="previousKanjiButton">Previous</span>
                     </div>
                 </div>
                 <div id="recommendations-container" class="recommendations" style="display:none"></div>
@@ -52,8 +51,8 @@
                     <li class="walkthrough">
                         <!-- i18n :-( -->
                         <p>
-                            To begin, enter a hanzi above, or explore the example.
-                            You can click on hanzi or the lines that connect them.
+                            To begin, enter a kanji above, or explore the example.
+                            You can click on kanji or the lines that connect them.
                             Example sentences will appear here!
                         </p>
                         <p>
@@ -63,11 +62,11 @@
                             an import-ready download.
                         </p>
                         <p>
-                            Circles (nodes) correspond to individual hanzi characters.
+                            Circles (nodes) correspond to individual kanji characters.
                         </p>
                         <p>
-                            Connecting lines (edges) represent a relationship among hanzi.
-                            Namely, by connecting the two linked hanzi, a word can be formed
+                            Connecting lines (edges) represent a relationship among kanji.
+                            Namely, by connecting the two linked kanji, a word can be formed
                             (or partially formed in the case of 3+ character words).
                         </p>
                         <p style="font-weight:bold">
@@ -139,15 +138,15 @@
         <main class="stats">
             <section>
                 <div id="visited-container" style="display:none">
-                    <h2>Hanzi Seen</h2>
+                    <h2>Kanji Seen</h2>
                     <h3>You've viewed examples for:</h3>
                     <div id="visited-graph"></div>
-                    <p id="visited-graph-detail" class="stats-detail">Percentages are hanzi seen, not words. Click a bar
+                    <p id="visited-graph-detail" class="stats-detail">Percentages are kanji seen, not words. Click a bar
                         in the chart for details.</p>
                 </div>
                 <h3>You've studied examples for:</h3>
                 <div id="studied-graph"></div>
-                <p id="studied-graph-detail" class="stats-detail">Percentages are hanzi seen, not words. Click a bar in
+                <p id="studied-graph-detail" class="stats-detail">Percentages are kanji seen, not words. Click a bar in
                     the chart for details.</p>
             </section>
             <section>
@@ -195,7 +194,7 @@
                 </p>
                 <p>
                     The idea is to emphasize the word-forming connections among kanji to help learners remember them.
-                    At least with Hanzi, I&#39;ve
+                    At least with hanzi, I&#39;ve
                     found
                     this more fun and effective than other methods, like studying stroke order, learning radicals or
                     components,
@@ -308,7 +307,7 @@
                     <li>
                         <h3>What does this "Previously" thing mean?</h3>
                         <ul>
-                            <li>As you search, click, or tap hanzi or connections in the diagram, you are shown example
+                            <li>As you search, click, or tap kanji or connections in the diagram, you are shown example
                                 sentences. Then, when you add words to your study list, the examples are converted to
                                 flashcards.
                                 The 'previous' section indicates how many times you've
@@ -325,7 +324,7 @@
                     <li>
                         <h3>How do recommendations work?</h3>
                         <ul>
-                            <li>Recommendations are based on what hanzi you&#39;ve already viewed examples for.
+                            <li>Recommendations are based on what kanji you&#39;ve already viewed examples for.
                                 For instance, if you&#39;ve viewed examples for 下午 and 上午,
                                 but you haven&#39;t yet visited 中, we might
                                 recommend you visit 中, since 中午 is common, and you&#39;ve seen 午 in several contexts,
@@ -339,7 +338,7 @@
                             <li>You can choose via the menu in the upper left. The choice of &#39;easy&#39; means
                                 you&#39;ll not be shown anything harder than level 3 of your chosen wordlist. The choice
                                 of &#39;hard&#39; means
-                                you&#39;ll only be shown level4-level6 hanzi. Levels are determined by word frequency
+                                you&#39;ll only be shown level4-level6 kanji. Levels are determined by word frequency
                                 (when viewing the top 10k words) or the HSK exam.
                             </li>
                         </ul>
@@ -374,7 +373,7 @@
                         <option>easy</option>
                         <option>hard</option>
                     </select>
-                    hanzi</label>
+                    kanji</label>
             </div>
             <div class="menu-item">
                 <label class="menu-item-text" for="graph-selector">Color code based on:</label>

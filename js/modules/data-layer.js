@@ -23,7 +23,7 @@ let getVisited = function () {
     return visited;
 };
 //note: nodes will be marked visited when the user searches for or taps a node in the graph
-//for now, avoiding marking nodes visited via clicking a hanzi in an example or card
+//for now, avoiding marking nodes visited via clicking a kanji in an example or card
 //because in those cases no examples are shown
 let updateVisited = function (nodes) {
     for (let i = 0; i < nodes.length; i++) {

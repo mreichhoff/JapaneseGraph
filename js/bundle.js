@@ -77,7 +77,7 @@
         return visited;
     };
     //note: nodes will be marked visited when the user searches for or taps a node in the graph
-    //for now, avoiding marking nodes visited via clicking a hanzi in an example or card
+    //for now, avoiding marking nodes visited via clicking a kanji in an example or card
     //because in those cases no examples are shown
     let updateVisited = function (nodes) {
         for (let i = 0; i < nodes.length; i++) {
@@ -222,7 +222,7 @@
         if (maxDepth < 0) {
             return;
         }
-        let curr = hanzi[start];
+        let curr = kanji[start];
         //todo does javascript have a set?
         visited[start] = true;
         for (const [key, value] of Object.entries(curr.edges)) {
@@ -351,14 +351,14 @@
 
     //TODO: like in other files, remove these dups
     const recommendationsContainer = document.getElementById('recommendations-container');
-    const hanziBox$1 = document.getElementById('hanzi-box');
+    const kanjiBox$1 = document.getElementById('kanji-box');
     let recommendationsWorker = null;
 
     let initialize$3 = function () {
         recommendationsWorker = new Worker('js/modules/recommendations-worker.js');
         recommendationsWorker.postMessage({
             type: 'graph',
-            payload: window.hanzi
+            payload: window.kanji
         });
         recommendationsWorker.postMessage({
             type: 'visited',
@@ -392,8 +392,8 @@
                     curr.className = 'recommendation';
                     curr.addEventListener('click', function (event) {
                         //can I do this?
-                        hanziBox$1.value = event.target.innerText;
-                        document.querySelector('#hanzi-choose input[type=submit]').click();
+                        kanjiBox$1.value = event.target.innerText;
+                        document.querySelector('#kanji-choose input[type=submit]').click();
                         event.target.style.display = 'none';
                         let otherRecs = document.querySelectorAll('.recommendation');
                         let stillShown = false;
@@ -445,7 +445,7 @@
     //refactor badly needed...hacks on top of hacks at this point
     let maxExamples = 5;
     let currentExamples = {};
-    let currentHanzi = null;
+    let currentKanji = null;
     let currentWord = null;
     let undoChain = [];
     let tabs = {
@@ -485,9 +485,9 @@
     const examplesList = document.getElementById('examples');
     const exampleContainer = document.getElementById('example-container');
     //explore tab navigation controls
-    const hanziBox = document.getElementById('hanzi-box');
-    const hanziSearchForm = document.getElementById('hanzi-choose');
-    const previousHanziButton = document.getElementById('previousHanziButton');
+    const kanjiBox = document.getElementById('kanji-box');
+    const kanjiSearchForm = document.getElementById('kanji-choose');
+    const previousKanjiButton = document.getElementById('previousKanjiButton');
     //recommendations
     const recommendationsDifficultySelector = document.getElementById('recommendations-difficulty');
 
@@ -543,7 +543,7 @@
     let persistState = function () {
         let localUndoChain = undoChain.length > 5 ? undoChain.slice(0, 5) : undoChain;
         localStorage.setItem('state', JSON.stringify({
-            hanzi: currentHanzi,
+            kanji: currentKanji,
             word: currentWord,
             level: levelSelector.value,
             undoChain: localUndoChain,
@@ -555,7 +555,7 @@
     let setupDefinitions = function (definitionList, definitionHolder) {
         for (let i = 0; i < definitionList.length; i++) {
             let definitionItem = document.createElement('li');
-            let definitionContent = definitionList[i].transcript + ': ' + definitionList[i].en;
+            let definitionContent = definitionList[i].join('; ');
             definitionItem.textContent = definitionContent;
             definitionHolder.appendChild(definitionItem);
         }
@@ -655,7 +655,7 @@
     };
     let updateUndoChain = function () {
         //push clones onto the stack
-        undoChain.push({ hanzi: [...currentHanzi], word: (currentWord ? [...currentWord] : currentWord) });
+        undoChain.push({ kanji: [...currentKanji], word: (currentWord ? [...currentWord] : currentWord) });
     };
 
     //TODO can this be combined with the definition rendering part?
@@ -664,8 +664,8 @@
         let result = { ja: [text] };
         let answer = '';
         for (let i = 0; i < definitionList.length; i++) {
-            answer += definitionList[i].transcript + ': ' + definitionList[i].en;
-            answer += i == definitionList.length - 1 ? '' : ', ';
+            answer += definitionList[i].join(', ');
+            answer += i == definitionList.length - 1 ? '' : '; ';
         }
         result['en'] = answer;
         return result;
@@ -675,9 +675,9 @@
         let id = evt.target.id();
         let maxLevel = levelSelector.value;
         updateUndoChain();
-        //not needed if currentHanzi contains id, which would mean the nodes have already been added
-        //includes O(N) but currentHanzi almost always < 10 elements
-        if (currentHanzi && !currentHanzi.includes(id)) {
+        //not needed if currentKanji contains id, which would mean the nodes have already been added
+        //includes O(N) but currentKanji almost always < 10 elements
+        if (currentKanji && !currentKanji.includes(id)) {
             addToExistingGraph(id, maxLevel);
         }
         setupExamples([id]);
@@ -698,8 +698,8 @@
     };
     let addToExistingGraph = function (character, maxLevel) {
         addToGraph(character, maxLevel);
-        //currentHanzi must be set up before this call
-        currentHanzi.push(character);
+        //currentKanji must be set up before this call
+        currentKanji.push(character);
     };
     let updateGraph = function (value, maxLevel) {
         document.getElementById('graph').remove();
@@ -708,9 +708,9 @@
         //TODO: makes assumption about markup order
         mainContainer$1.append(nextGraph);
 
-        if (value && hanzi[value]) {
+        if (value && kanji[value]) {
             initializeGraph(value, maxLevel, nextGraph, nodeTapHandler, edgeTapHandler);
-            currentHanzi = [value];
+            currentKanji = [value];
             persistState();
         }
     };
@@ -720,8 +720,8 @@
         if (!oldState) {
             //graph chosen is default, no need to modify legend or dropdown
             //add a default graph on page load to illustrate the concept
-            let defaultHanzi = ["遠", "応", "援"];
-            updateGraph(defaultHanzi[Math.floor(Math.random() * defaultHanzi.length)], levelSelector.value);
+            let defaultKanji = ["遠", "応", "援"];
+            updateGraph(defaultKanji[Math.floor(Math.random() * defaultKanji.length)], levelSelector.value);
         } else {
             if (state.currentGraph) {
                 let activeGraphKey = Object.keys(graphOptions).find(x => graphOptions[x].display === state.currentGraph);
@@ -732,10 +732,10 @@
                 graphSelector.value = state.currentGraph;
             }
             levelSelector.value = oldState.level;
-            //oldState.hanzi should always have length >= 1
-            updateGraph(oldState.hanzi[0], oldState.level);
-            for (let i = 1; i < oldState.hanzi.length; i++) {
-                addToExistingGraph(oldState.hanzi[i], oldState.level);
+            //oldState.kanji should always have length >= 1
+            updateGraph(oldState.kanji[0], oldState.level);
+            for (let i = 1; i < oldState.kanji.length; i++) {
+                addToExistingGraph(oldState.kanji[i], oldState.level);
             }
             if (oldState.word) {
                 setupExamples(oldState.word);
@@ -761,9 +761,9 @@
                 let a = document.createElement('a');
                 a.textContent = character;
                 a.addEventListener('click', function () {
-                    if (hanzi[character]) {
+                    if (kanji[character]) {
                         let updated = false;
-                        if (currentHanzi && !currentHanzi.includes(character)) {
+                        if (currentKanji && !currentKanji.includes(character)) {
                             updateUndoChain();
                             updated = true;
                             updateGraph(character, levelSelector.value);
@@ -786,11 +786,11 @@
         return anchorList;
     };
 
-    hanziSearchForm.addEventListener('submit', function (event) {
+    kanjiSearchForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        let value = hanziBox.value;
+        let value = kanjiBox.value;
         let maxLevel = levelSelector.value;
-        if (value && hanzi[value]) {
+        if (value && kanji[value]) {
             updateUndoChain();
             updateGraph(value, maxLevel);
             setupExamples([value]);
@@ -802,18 +802,18 @@
     levelSelector.addEventListener('change', function () {
         //TODO hide edges in existing graph rather than rebuilding
         //TODO refresh after level change can be weird
-        updateGraph(currentHanzi[currentHanzi.length - 1], levelSelector.value);
+        updateGraph(currentKanji[currentKanji.length - 1], levelSelector.value);
     });
 
-    previousHanziButton.addEventListener('click', function () {
+    previousKanjiButton.addEventListener('click', function () {
         if (!undoChain.length) {
             return;
         }
         let next = undoChain.pop();
         let maxLevel = levelSelector.value;
-        updateGraph(next.hanzi[0], maxLevel);
-        for (let i = 1; i < next.hanzi.length; i++) {
-            addToExistingGraph(next.hanzi[i], maxLevel);
+        updateGraph(next.kanji[0], maxLevel);
+        for (let i = 1; i < next.kanji.length; i++) {
+            addToExistingGraph(next.kanji[i], maxLevel);
         }
         if (next.word) {
             setupExamples(next.word);
@@ -1013,7 +1013,7 @@
             let encodedUri = encodeURI(content);
             let link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "hanzi-graph-export-" + Date.now() + ".txt");
+            link.setAttribute("download", "japanese-graph-export-" + Date.now() + ".txt");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1224,16 +1224,16 @@
     let BarChartClickHandler = function (detail, totalsByLevel, prop, index, message) {
         detail.innerHTML = '';
         //TODO: why no built-in difference method?
-        let missingHanzi = new Set([...totalsByLevel[index + 1].characters].filter(x => !totalsByLevel[index + 1][prop].has(x)));
-        missingHanzi.forEach(x => message += x);
+        let missingKanji = new Set([...totalsByLevel[index + 1].characters].filter(x => !totalsByLevel[index + 1][prop].has(x)));
+        missingKanji.forEach(x => message += x);
         detail.innerHTML = message;
     };
     //could be an array, but we're possibly going to add out of order, and also trying to avoid hardcoding max level
     let totalsByLevel = {};
     let updateTotalsByLevel = function () {
         totalsByLevel = {};
-        Object.keys(hanzi).forEach(x => {
-            let level = hanzi[x].node[getActiveGraph().levelProperty];
+        Object.keys(kanji).forEach(x => {
+            let level = kanji[x].node[getActiveGraph().levelProperty];
             if (!(level in totalsByLevel)) {
                 totalsByLevel[level] = { seen: new Set(), total: 0, visited: new Set(), characters: new Set() };
             }
@@ -1249,8 +1249,8 @@
             }
         });
         studyListCharacters.forEach(x => {
-            if (hanzi[x]) {
-                let level = hanzi[x].node[getActiveGraph().levelProperty];
+            if (kanji[x]) {
+                let level = kanji[x].node[getActiveGraph().levelProperty];
                 totalsByLevel[level].seen.add(x);
             }
         });
@@ -1298,7 +1298,7 @@
                 }
                 addedByDay[day].total++;
                 [...card.ja.join('')].forEach(character => {
-                    if (hanzi[character] && !seenCharacters.has(character)) {
+                    if (kanji[character] && !seenCharacters.has(character)) {
                         addedByDay[day].chars.add(character);
                         seenCharacters.add(character);
                     }
@@ -1306,7 +1306,7 @@
             } else {
                 //cards are sorted with unknown add date at front, so safe to add all at the start
                 [...card.ja.join('')].forEach(character => {
-                    if (hanzi[character]) {
+                    if (kanji[character]) {
                         seenCharacters.add(character);
                     }
                 });
@@ -1372,8 +1372,8 @@
             return;
         }
         Object.keys(visitedCharacters).forEach(x => {
-            if (hanzi[x]) {
-                const level = hanzi[x].node[getActiveGraph().levelProperty];
+            if (kanji[x]) {
+                const level = kanji[x].node[getActiveGraph().levelProperty];
                 totalsByLevel[level].visited.add(x);
             }
         });
@@ -1551,10 +1551,13 @@
         [
             window.graphFetch
                 .then(response => response.json())
-                .then(data => window.hanzi = data),
+                .then(data => window.kanji = data),
             window.sentencesFetch
                 .then(response => response.json())
-                .then(data => window.sentences = data)
+                .then(data => window.sentences = data),
+            window.definitionsFetch
+                .then(response => response.json())
+                .then(data => window.definitions = data)
         ]
     ).then(_ => {
         initialize$1();

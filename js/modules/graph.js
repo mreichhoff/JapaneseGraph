@@ -6,7 +6,7 @@ let dfs = function (start, elements, maxDepth, visited, maxLevel) {
     if (maxDepth < 0) {
         return;
     }
-    let curr = hanzi[start];
+    let curr = kanji[start];
     //todo does javascript have a set?
     visited[start] = true;
     for (const [key, value] of Object.entries(curr.edges)) {

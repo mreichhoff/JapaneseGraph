@@ -8,10 +8,13 @@ Promise.all(
     [
         window.graphFetch
             .then(response => response.json())
-            .then(data => window.hanzi = data),
+            .then(data => window.kanji = data),
         window.sentencesFetch
             .then(response => response.json())
-            .then(data => window.sentences = data)
+            .then(data => window.sentences = data),
+        window.definitionsFetch
+            .then(response => response.json())
+            .then(data => window.definitions = data)
     ]
 ).then(_ => {
     studyModeInit();

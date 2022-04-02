@@ -5,3 +5,4 @@ if (state && state.graphPrefix) {
 }
 window.graphFetch = fetch(`./data/${graphPrefix}graph.json`);
 window.sentencesFetch = fetch(`./data/${graphPrefix}sentences.json`);
+window.definitionsFetch = fetch(`./data/definitions.json`);
