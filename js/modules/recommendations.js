@@ -77,15 +77,15 @@ let initialize = function () {
         }
     }
 };
-let graphChanged = function () {
+let levelPropertyChanged = function (property) {
     recommendationsWorker.postMessage({
-        type: 'graph',
-        payload: window.kanji
+        type: 'levelProperty',
+        payload: property
     });
 };
 let preferencesChanged = function (val) {
     let minLevel = 1;
-    let maxLevel = 6;
+    let maxLevel = 5;
     if (val === 'easy') {
         maxLevel = 3;
     } else if (val === 'hard') {
@@ -99,4 +99,4 @@ let preferencesChanged = function (val) {
         }
     });
 }
-export { initialize, graphChanged, preferencesChanged }
+export { initialize, levelPropertyChanged, preferencesChanged }

@@ -1,7 +1,7 @@
 import { faqTypes, showFaq } from "./faq.js";
-import { updateVisited, getVisited, addCards, getCardCount, inStudyList } from "./data-layer.js";
+import { updateVisited, getVisited, addCards, inStudyList, getCardPerformance } from "./data-layer.js";
 import { addToGraph, initializeGraph, setLevelProperty, updateColorScheme } from "./graph.js";
-import { graphChanged, preferencesChanged } from "./recommendations.js";
+import { levelPropertyChanged, preferencesChanged } from "./recommendations.js";
 
 //TODO break this down further
 //refactor badly needed...hacks on top of hacks at this point
@@ -191,7 +191,10 @@ let setupExamples = function (words) {
         contextHolder.className = 'context';
         contextHolder.innerText += "Previously: ";
         [...words[i]].forEach(x => {
-            contextHolder.innerText += `${x} seen ${getVisited()[x] || 0} times; in ${getCardCount(x)} flash cards. `;
+            if (kanji[x]) {
+                let cardData = getCardPerformance(x);
+                contextHolder.innerText += `${x} seen ${getVisited()[x] || 0} times; in ${cardData.count} flash cards (${cardData.performance}% correct). `;
+            }
         });
         let contextFaqLink = document.createElement('a');
         contextFaqLink.className = 'faq-link';
@@ -297,7 +300,9 @@ let initialize = function () {
         //oldState.kanji should always have length >= 1
         updateGraph(oldState.kanji[0], oldState.level);
         for (let i = 1; i < oldState.kanji.length; i++) {
-            addToExistingGraph(oldState.kanji[i], oldState.level);
+            if (kanji[oldState.kanji[i]]) {
+                addToExistingGraph(oldState.kanji[i], oldState.level);
+            }
         }
         if (oldState.word) {
             setupExamples(oldState.word);
@@ -352,9 +357,14 @@ kanjiSearchForm.addEventListener('submit', function (event) {
     event.preventDefault();
     let value = kanjiBox.value;
     let maxLevel = levelSelector.value;
-    if (value && kanji[value]) {
+    if (value && wordSet.has(value)) {
         updateUndoChain();
-        updateGraph(value, maxLevel);
+        updateGraph(value[0], maxLevel);
+        for (let i = 1; i < value.length; i++) {
+            if (kanji[value[i]]) {
+                addToExistingGraph(value[i], maxLevel);
+            }
+        }
         setupExamples([value]);
         persistState();
         updateVisited([value]);
@@ -375,7 +385,9 @@ previousKanjiButton.addEventListener('click', function () {
     let maxLevel = levelSelector.value;
     updateGraph(next.kanji[0], maxLevel);
     for (let i = 1; i < next.kanji.length; i++) {
-        addToExistingGraph(next.kanji[i], maxLevel);
+        if (kanji[next.kanji[i]]) {
+            addToExistingGraph(next.kanji[i], maxLevel);
+        }
     }
     if (next.word) {
         setupExamples(next.word);
@@ -421,6 +433,7 @@ let switchGraph = function () {
         let key = Object.keys(graphOptions).find(x => graphOptions[x].display === value);
         activeGraph = graphOptions[key];
         setLevelProperty(activeGraph.levelProperty);
+        levelPropertyChanged(activeGraph.levelProperty);
         legendElements.forEach((x, index) => {
             x.innerText = activeGraph.legend[index];
         });

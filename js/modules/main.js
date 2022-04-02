@@ -14,7 +14,10 @@ Promise.all(
             .then(data => window.sentences = data),
         window.definitionsFetch
             .then(response => response.json())
-            .then(data => window.definitions = data)
+            .then(data => window.definitions = data),
+        window.wordSetFetch
+            .then(response => response.json())
+            .then(data => window.wordSet = new Set(data))
     ]
 ).then(_ => {
     studyModeInit();

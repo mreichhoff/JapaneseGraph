@@ -139,16 +139,20 @@
         return studyList[text];
     };
 
-    let getCardCount = function (character) {
+    let getCardPerformance = function (character) {
         let count = 0;
+        let correct = 0;
+        let incorrect = 0;
         //TODO: if performance becomes an issue, we can pre-compute this
         //as-is, it performs fine even with larger flashcard decks
         Object.keys(studyList || {}).forEach(x => {
             if (x.indexOf(character) >= 0) {
                 count++;
+                correct += studyList[x].rightCount;
+                incorrect += studyList[x].wrongCount;
             }
         });
-        return count;
+        return { count: count, performance: Math.round(100 * correct / ((correct + incorrect) || 1)) };
     };
 
     let getStudyList = function () {
@@ -424,9 +428,15 @@
             }
         };
     };
+    let levelPropertyChanged = function (property) {
+        recommendationsWorker.postMessage({
+            type: 'levelProperty',
+            payload: property
+        });
+    };
     let preferencesChanged = function (val) {
         let minLevel = 1;
-        let maxLevel = 6;
+        let maxLevel = 5;
         if (val === 'easy') {
             maxLevel = 3;
         } else if (val === 'hard') {
@@ -629,7 +639,10 @@
             contextHolder.className = 'context';
             contextHolder.innerText += "Previously: ";
             [...words[i]].forEach(x => {
-                contextHolder.innerText += `${x} seen ${getVisited()[x] || 0} times; in ${getCardCount(x)} flash cards. `;
+                if (kanji[x]) {
+                    let cardData = getCardPerformance(x);
+                    contextHolder.innerText += `${x} seen ${getVisited()[x] || 0} times; in ${cardData.count} flash cards (${cardData.performance}% correct). `;
+                }
             });
             let contextFaqLink = document.createElement('a');
             contextFaqLink.className = 'faq-link';
@@ -735,7 +748,9 @@
             //oldState.kanji should always have length >= 1
             updateGraph(oldState.kanji[0], oldState.level);
             for (let i = 1; i < oldState.kanji.length; i++) {
-                addToExistingGraph(oldState.kanji[i], oldState.level);
+                if (kanji[oldState.kanji[i]]) {
+                    addToExistingGraph(oldState.kanji[i], oldState.level);
+                }
             }
             if (oldState.word) {
                 setupExamples(oldState.word);
@@ -790,9 +805,14 @@
         event.preventDefault();
         let value = kanjiBox.value;
         let maxLevel = levelSelector.value;
-        if (value && kanji[value]) {
+        if (value && wordSet.has(value)) {
             updateUndoChain();
-            updateGraph(value, maxLevel);
+            updateGraph(value[0], maxLevel);
+            for (let i = 1; i < value.length; i++) {
+                if (kanji[value[i]]) {
+                    addToExistingGraph(value[i], maxLevel);
+                }
+            }
             setupExamples([value]);
             persistState();
             updateVisited([value]);
@@ -813,7 +833,9 @@
         let maxLevel = levelSelector.value;
         updateGraph(next.kanji[0], maxLevel);
         for (let i = 1; i < next.kanji.length; i++) {
-            addToExistingGraph(next.kanji[i], maxLevel);
+            if (kanji[next.kanji[i]]) {
+                addToExistingGraph(next.kanji[i], maxLevel);
+            }
         }
         if (next.word) {
             setupExamples(next.word);
@@ -859,6 +881,7 @@
             let key = Object.keys(graphOptions).find(x => graphOptions[x].display === value);
             activeGraph = graphOptions[key];
             setLevelProperty(activeGraph.levelProperty);
+            levelPropertyChanged(activeGraph.levelProperty);
             legendElements.forEach((x, index) => {
                 x.innerText = activeGraph.legend[index];
             });
@@ -1557,7 +1580,10 @@
                 .then(data => window.sentences = data),
             window.definitionsFetch
                 .then(response => response.json())
-                .then(data => window.definitions = data)
+                .then(data => window.definitions = data),
+            window.wordSetFetch
+                .then(response => response.json())
+                .then(data => window.wordSet = new Set(data))
         ]
     ).then(_ => {
         initialize$1();

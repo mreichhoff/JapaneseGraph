@@ -3,6 +3,7 @@ let visited = {};
 let maxLevel = 5;
 let minLevel = 1;
 const maxEdgesForRecommendation = 16;
+let levelProperty = 'word_level';
 let getRecommendations = function () {
     if (!kanji || !visited) {
         return [];
@@ -14,7 +15,7 @@ let getRecommendations = function () {
     let best = 0;
     let result = [];
     for (let i = 0; i < keys.length; i++) {
-        if (visited[keys[i]] || kanji[keys[i]].node.level < minLevel || kanji[keys[i]].node.level > maxLevel) {
+        if (visited[keys[i]] || kanji[keys[i]].node[levelProperty] < minLevel || kanji[keys[i]].node[levelProperty] > maxLevel) {
             continue;
         }
         let currentKanji = kanji[keys[i]];
@@ -26,13 +27,13 @@ let getRecommendations = function () {
         }
         let total = 0;
         for (let j = 0; j < edgeKeys.length; j++) {
-            let curr = (visited[edgeKeys[j]] || 0) / kanji[edgeKeys[j]].node.level;
+            let curr = (visited[edgeKeys[j]] || 0) / kanji[edgeKeys[j]].node[levelProperty];
             curr /= (Object.keys(kanji[edgeKeys[j]].edges).length || 1);
             total += curr;
             //TODO lots of room for improvement
-            //edgeLevelTotal += kanji[edgeKeys[j]].node.level;
+            //edgeLevelTotal += kanji[edgeKeys[j]].node[levelProperty];
         }
-        total /= currentKanji.node.level;
+        total /= currentKanji.node[levelProperty];
         //let total = numerator / (edgeLevelTotal / (edgeKeys.length || 1));
         if (total > best || !result.length) {
             best = total;
@@ -42,7 +43,7 @@ let getRecommendations = function () {
         }
     }
     result.sort((a, b) => {
-        return kanji[a].node.level - kanji[b].node.level;
+        return kanji[a].node[levelProperty] - kanji[b].node[levelProperty];
     });
     return result.slice(0, 3);
 }
@@ -54,6 +55,8 @@ onmessage = function (e) {
     } else if (e.data.type === 'levelPreferences') {
         maxLevel = e.data.payload.maxLevel;
         minLevel = e.data.payload.minLevel;
+    } else if (e.data.type === 'levelProperty') {
+        levelProperty = e.data.payload;
     }
 }
 setInterval(function () {
