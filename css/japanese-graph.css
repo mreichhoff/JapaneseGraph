@@ -169,8 +169,11 @@ a {
     font-size: 16px;
     margin-right: 4px;
 }
-#control-pane input[type=text]{
-    width: 50px;
+#kanji-choose {
+    width: 100%;
+}
+.search-box {
+    width: 150px;
 }
 .faq-link {
     text-decoration: underline;
@@ -202,6 +205,8 @@ h2 span {
     height: 44px;
     border-radius: 50%;
     margin-bottom: 4px;
+    margin-left: 1px;
+    margin-right: 1px;
     font-size: 14px;
     text-align: center;
     line-height: 44px;
@@ -611,9 +616,6 @@ select {
     }
     #controls input[type=submit] {
         font-size: 12px;
-    }
-    #control-pane input[type=text] {
-        width: 30px;
     }
 }
 header.stats-header {

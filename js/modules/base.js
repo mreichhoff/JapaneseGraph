@@ -67,9 +67,7 @@ let getTtsVoice = function () {
 let ttsVoice = getTtsVoice();
 //TTS voice option loading appears to differ in degree of asynchronicity by browser...being defensive
 speechSynthesis.onvoiceschanged = function () {
-    if (!ttsVoice) {
-        ttsVoice = getTtsVoice();
-    }
+    ttsVoice = getTtsVoice();
 };
 
 let runTextToSpeech = function (text, anchors) {
