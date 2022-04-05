@@ -805,10 +805,19 @@
         let maxLevel = levelSelector.value;
         if (value && wordSet.has(value)) {
             updateUndoChain();
-            updateGraph(value[0], maxLevel);
-            for (let i = 1; i < value.length; i++) {
+            let ranUpdate = false;
+            // TODO: add non-kanji words in `sentences` to wordSet and definitions
+            // then, add an else on the `wordSet.has(value)` for when we don't have it.
+            // In that case, fetch definition + examples. Ideally make it rare to enter
+            // a word and have it not find something for it. Also add not found handling
+            for (let i = 0; i < value.length; i++) {
                 if (kanji[value[i]]) {
-                    addToExistingGraph(value[i], maxLevel);
+                    if (!ranUpdate) {
+                        ranUpdate = true;
+                        updateGraph(value[0], maxLevel);
+                    } else {
+                        addToExistingGraph(value[i], maxLevel);
+                    }
                 }
             }
             setupExamples([value]);
