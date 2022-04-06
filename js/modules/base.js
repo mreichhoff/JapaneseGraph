@@ -132,16 +132,6 @@ let findExamples = function (word) {
             }
         }
     }
-    //TODO...improve
-    examples.sort((a, b) => {
-        if (a.en && !b.en) {
-            return -1;
-        } else if (!a.en && b.en) {
-            return 1;
-        } else {
-            return a.ja.length - b.ja.length;
-        }
-    });
     return examples;
 };
 let setupExampleElements = function (examples, exampleList) {
