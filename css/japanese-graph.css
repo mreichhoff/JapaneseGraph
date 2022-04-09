@@ -246,9 +246,14 @@ p.example-line {
 p.ja-example {
     font-size: 28px;
     display: flex;
-    cursor: pointer;
     font-family: sans-serif;
     opacity: 1;
+}
+a.navigable {
+    cursor: pointer;
+}
+a.navigable:hover {
+    font-weight: bold;
 }
 .context {
     margin: 0;
@@ -379,16 +384,26 @@ h2 .text-button {
 }
 #card-question-container {
     display: flex;
+    font-size: 28px;;
 }
-#card-question-container a {
+.cloze-container {
+    margin: 2px;
+}
+.cloze-placeholder {
+    color: #ff635f;
+    font-weight: bold;
+    letter-spacing: 10px;
+    margin-left: 10px;
+}
+.sentence-container a {
     font-size: 28px;
     vertical-align: text-top;
-    cursor: pointer;
     font-family: sans-serif;
 }
 #card-answer {
     font-size: 24px;
     width: 95%;
+    display: flex;
 }
 .card-detail {
     font-size: 16px;

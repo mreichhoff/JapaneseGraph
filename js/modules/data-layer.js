@@ -12,6 +12,13 @@ const studyResult = {
     CORRECT: 'correct',
     INCORRECT: 'incorrect'
 };
+const cardTypes = {
+    RECOGNITION: 'recognition',
+    RECALL: 'recall',
+    CLOZE: 'cloze'
+};
+const MAX_RECALL = 3;
+const MAX_CLOZE = 2;
 let studyList = JSON.parse(localStorage.getItem('studyList') || '{}');
 let studyResults = JSON.parse(localStorage.getItem('studyResults') || '{"hourly":{},"daily":{}}');
 let visited = JSON.parse(localStorage.getItem('visited') || '{}');
@@ -57,24 +64,76 @@ let updateCard = function (result, key) {
         studyList[key].due = now.valueOf() + (nextJump * 24 * 60 * 60 * 1000);
     }
     saveStudyList([key]);
-}
+};
+let addRecallCards = function (newCards, text, newKeys) {
+    let total = Math.min(MAX_RECALL, newCards.length);
+    for (let i = 0; i < total; i++) {
+        let key = newCards[i].ja.join('') + cardTypes.RECALL;
+        if (!studyList[key] && newCards[i].en) {
+            newKeys.push(key);
+            studyList[key] = {
+                en: newCards[i].en,
+                due: Date.now() + newCards.length + i,
+                ja: newCards[i].ja,
+                wrongCount: 0,
+                rightCount: 0,
+                type: cardTypes.RECALL,
+                vocabOrigin: text,
+                added: Date.now()
+            };
+        }
+    }
+};
+// TODO: may be better combined with addRecallCards...
+let addClozeCards = function (newCards, text, newKeys) {
+    let added = 0;
+    for (let i = 0; i < newCards.length; i++) {
+        if (added == MAX_CLOZE) {
+            return;
+        }
+        // don't make cloze cards with the exact text
+        if (newCards[i].ja.join('').length <= text.length) {
+            continue;
+        }
+        let key = newCards[i].ja.join('') + cardTypes.CLOZE;
+        if (!studyList[key] && newCards[i].en) {
+            added++;
+            newKeys.push(key);
+            studyList[key] = {
+                en: newCards[i].en,
+                // due after the recognition cards, for some reason
+                due: Date.now() + newCards.length + i,
+                ja: newCards[i].ja,
+                wrongCount: 0,
+                rightCount: 0,
+                type: cardTypes.CLOZE,
+                vocabOrigin: text,
+                added: Date.now()
+            };
+        }
+    }
+};
 let addCards = function (currentExamples, text) {
     let newCards = currentExamples[text].map((x, i) => ({ ...x, due: Date.now() + i }));
     let newKeys = [];
     for (let i = 0; i < newCards.length; i++) {
         let jaJoined = newCards[i].ja.join('');
-        newKeys.push(jaJoined);
         if (!studyList[jaJoined] && newCards[i].en) {
+            newKeys.push(jaJoined);
             studyList[jaJoined] = {
                 en: newCards[i].en,
                 due: newCards[i].due,
                 ja: newCards[i].ja,
                 wrongCount: 0,
                 rightCount: 0,
+                type: cardTypes.RECOGNITION,
+                vocabOrigin: text,
                 added: Date.now()
             };
         }
     }
+    addRecallCards(newCards, text, newKeys);
+    addClozeCards(newCards, text, newKeys);
     //TODO: remove these keys from /deleted/ to allow re-add
     //update it whenever it changes
     saveStudyList(newKeys);
@@ -180,4 +239,4 @@ let sanitizeKey = function (key) {
     return key.replaceAll('.', '。').replaceAll('#', '').replaceAll('$', 'USD').replaceAll('/', '').replaceAll('[', '').replaceAll(']', '');
 };
 
-export { getVisited, updateVisited, registerCallback, saveStudyList, addCards, inStudyList, getCardPerformance, getStudyList, removeFromStudyList, findOtherCards, updateCard, recordEvent, getStudyResults, studyResult, dataTypes }
+export { getVisited, updateVisited, registerCallback, saveStudyList, addCards, inStudyList, getCardPerformance, getStudyList, removeFromStudyList, findOtherCards, updateCard, recordEvent, getStudyResults, studyResult, dataTypes, cardTypes }

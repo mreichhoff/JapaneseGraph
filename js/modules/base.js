@@ -315,6 +315,9 @@ let makeSentenceNavigable = function (text, container, noExampleChange) {
         (function (character) {
             let a = document.createElement('a');
             a.textContent = character;
+            if (kanji[character]) {
+                a.className = 'navigable';
+            }
             a.addEventListener('click', function () {
                 if (kanji[character]) {
                     let updated = false;
