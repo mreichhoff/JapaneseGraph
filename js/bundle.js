@@ -301,7 +301,7 @@
                     'label': 'data(words)',
                     'color': (_ => prefersLight ? 'black' : '#eee'),
                     'font-size': '10px',
-                    'text-background-color': (_ => prefersLight ? '#f9f9f9' : '#121212'),
+                    'text-background-color': (_ => prefersLight ? '#f9f9f9' : 'black'),
                     'text-background-opacity': '1',
                     'text-background-shape': 'round-rectangle',
                     'text-events': 'yes'
