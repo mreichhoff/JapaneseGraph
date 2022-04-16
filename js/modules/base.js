@@ -50,6 +50,8 @@ const exampleContainer = document.getElementById('example-container');
 const kanjiBox = document.getElementById('kanji-box');
 const kanjiSearchForm = document.getElementById('kanji-choose');
 const previousKanjiButton = document.getElementById('previousKanjiButton');
+const notFoundElement = document.getElementById('not-found-message');
+
 //recommendations
 const recommendationsDifficultySelector = document.getElementById('recommendations-difficulty');
 
@@ -349,6 +351,7 @@ kanjiSearchForm.addEventListener('submit', function (event) {
     let value = kanjiBox.value;
     let maxLevel = levelSelector.value;
     if (value && wordSet.has(value)) {
+        notFoundElement.style.display = 'none';
         updateUndoChain();
         let ranUpdate = false;
         // TODO: add non-kanji words in `sentences` to wordSet and definitions
@@ -368,6 +371,8 @@ kanjiSearchForm.addEventListener('submit', function (event) {
         setupExamples([value]);
         persistState();
         updateVisited([value]);
+    } else {
+        notFoundElement.removeAttribute('style');
     }
 });
 

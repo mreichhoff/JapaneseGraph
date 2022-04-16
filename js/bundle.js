@@ -71,7 +71,7 @@
         RECALL: 'recall',
         CLOZE: 'cloze'
     };
-    const MAX_RECALL = 3;
+    const MAX_RECALL = 2;
     const MAX_CLOZE = 2;
     let studyList = JSON.parse(localStorage.getItem('studyList') || '{}');
     let studyResults = JSON.parse(localStorage.getItem('studyResults') || '{"hourly":{},"daily":{}}');
@@ -219,7 +219,7 @@
     };
     let findOtherCards = function (seeking, currentKey) {
         let cards = Object.keys(studyList);
-        let candidates = cards.filter(x => x !== currentKey && x.includes(seeking)).sort((a, b) => studyList[b].rightCount - studyList[a].rightCount);
+        let candidates = cards.filter(x => x !== currentKey && (!studyList[x].type || studyList[x].type === cardTypes.RECOGNITION) && x.includes(seeking)).sort((a, b) => studyList[b].rightCount - studyList[a].rightCount);
         return candidates;
     };
 
@@ -557,6 +557,8 @@
     const kanjiBox = document.getElementById('kanji-box');
     const kanjiSearchForm = document.getElementById('kanji-choose');
     const previousKanjiButton = document.getElementById('previousKanjiButton');
+    const notFoundElement = document.getElementById('not-found-message');
+
     //recommendations
     const recommendationsDifficultySelector = document.getElementById('recommendations-difficulty');
 
@@ -856,6 +858,7 @@
         let value = kanjiBox.value;
         let maxLevel = levelSelector.value;
         if (value && wordSet.has(value)) {
+            notFoundElement.style.display = 'none';
             updateUndoChain();
             let ranUpdate = false;
             // TODO: add non-kanji words in `sentences` to wordSet and definitions
@@ -875,6 +878,8 @@
             setupExamples([value]);
             persistState();
             updateVisited([value]);
+        } else {
+            notFoundElement.removeAttribute('style');
         }
     });
 

@@ -17,7 +17,7 @@ const cardTypes = {
     RECALL: 'recall',
     CLOZE: 'cloze'
 };
-const MAX_RECALL = 3;
+const MAX_RECALL = 2;
 const MAX_CLOZE = 2;
 let studyList = JSON.parse(localStorage.getItem('studyList') || '{}');
 let studyResults = JSON.parse(localStorage.getItem('studyResults') || '{"hourly":{},"daily":{}}');
@@ -165,7 +165,7 @@ let getStudyList = function () {
 }
 let findOtherCards = function (seeking, currentKey) {
     let cards = Object.keys(studyList);
-    let candidates = cards.filter(x => x !== currentKey && x.includes(seeking)).sort((a, b) => studyList[b].rightCount - studyList[a].rightCount);
+    let candidates = cards.filter(x => x !== currentKey && (!studyList[x].type || studyList[x].type === cardTypes.RECOGNITION) && x.includes(seeking)).sort((a, b) => studyList[b].rightCount - studyList[a].rightCount);
     return candidates;
 };
 
