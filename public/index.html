@@ -5,8 +5,13 @@
     <title>JapaneseGraph</title>
     <meta charset="utf-8">
     <meta name="description"
-        content="Learn Japanese by exploring the relationships between characters alongside examples that illustrate their use.">
+        content="Learn Japanese by exploring the relationships between kanji alongside examples that illustrate their use.">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="module">
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./asset-service-worker.js');
+        };
+    </script>
     <script src="./js/data-load.js"></script>
     <script src="./js/external/cytoscape.min.js"></script>
     <link rel="stylesheet" type="text/css" href="css/japanese-graph.css">
@@ -51,26 +56,25 @@
                     <li class="walkthrough">
                         <!-- i18n :-( -->
                         <p>
-                            To begin, enter a kanji above, or explore the example.
-                            You can click on kanji or the lines that connect them.
-                            Example sentences will appear here!
+                            Learn Japanese by exploring the relationships between kanji alongside examples that
+                            illustrate their use.
                         </p>
                         <p>
-                            Examples can be exported into your flashcard app of choice (e.g., Anki).
-                            Simply click the "Add to study list" button on whichever words you'd like,
-                            and then the "Export" button once you're done, for
-                            an import-ready download.
+                            Quickly build mental connections among kanji by searching, exploring the diagram, and
+                            finding example sentences.
+                            Anywhere you see a kanji, assume you can click or tap it and something will happen.
                         </p>
                         <p>
-                            Circles (nodes) correspond to individual kanji characters.
+                            Make flashcards with the "Add to study list" button.
+                            Cards for practicing both recognition and recall will be added, and you can study them via
+                            spaced repetition on the study tab. You can also export them to anki.
                         </p>
                         <p>
-                            Connecting lines (edges) represent a relationship among kanji.
-                            Namely, by connecting the two linked kanji, a word can be formed
-                            (or partially formed in the case of 3+ character words).
+                            If you make an account, the cards are synced in near
+                            real-time across devices. If not, no worries, they'll live in your browser.
                         </p>
-                        <p style="font-weight:bold">
-                            Both lines and circles can be clicked!
+                        <p>
+                            Color coding is available via word frequency or by JLPT level.
                         </p>
                         <p>
                             Note that you can also zoom, drag, and re-arrange the diagram however you please.
@@ -282,26 +286,6 @@
                     </li>
                 </ul>
             </section>
-            <section id="faq-single-char-warning" style="display:none">
-                <ul>
-                    <li>
-                        <h3>Why are the examples for certain characters a little strange?</h3>
-                        <ul>
-                            <li>Some characters are not commonly used alone. The examples use a process called <a
-                                    href="https://nlp.stanford.edu/IR-book/html/htmledition/tokenization-1.html">tokenization</a>
-                                to
-                                split the sentences into individual words. For example, 他是非常好 might be split into words
-                                like: 他,
-                                是,
-                                非常, 好, so searching for 非 by itself would not match. Future updates might show any
-                                sentences that contain the character, even if
-                                it&#39;s used
-                                as
-                                part of another word.</li>
-                        </ul>
-                    </li>
-                </ul>
-            </section>
             <section id="faq-context" style="display:none">
                 <ul>
                     <li>
@@ -333,13 +317,13 @@
                         </ul>
                     </li>
                     <li>
-                        <h3>How can I stop seeing so many HSK1 recommendations?</h3>
+                        <h3>How can I stop seeing so many easy recommendations?</h3>
                         <ul>
                             <li>You can choose via the menu in the upper left. The choice of &#39;easy&#39; means
                                 you&#39;ll not be shown anything harder than level 3 of your chosen wordlist. The choice
                                 of &#39;hard&#39; means
-                                you&#39;ll only be shown level4-level6 kanji. Levels are determined by word frequency
-                                (when viewing the top 10k words) or the HSK exam.
+                                you&#39;ll only be shown level4-level5 kanji. Levels are determined by word frequency
+                                or the JLPT exam.
                             </li>
                         </ul>
                     </li>
@@ -354,6 +338,13 @@
             <div class="stats-container"></div>
         </header>
         <main class="menu">
+            <div class="menu-item" id="welcome-message-container" style="display:none">
+                <span id="welcome-message" class="welcome-message"></span>
+            </div>
+            <div id="signin" class="menu-item">
+                <a id="signin-button" class="authn-button" href="login.html">Sign in</a>
+                <a id="signout-button" class="authn-button" style="display:none">Sign out</a>
+            </div>
             <div class="menu-item">
                 <label class="menu-item-text" for="level-selector">Choose max level in the graph:</label>
                 <select id="level-selector">

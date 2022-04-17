@@ -86,6 +86,7 @@ const cardRenderers = {
         for (let i = 0; i < answerAList.length; i++) {
             answerAList[i].addEventListener('click', displayRelatedCards.bind(this, answerAList[i]));
         }
+        addTextToSpeech(cardAnswerElement, currentCard.vocabOrigin, answerAList);
     }
 };
 
@@ -221,6 +222,7 @@ let initialize = function () {
         } else {
             exportStudyListButton.style.display = 'none';
         }
+        setupStudyMode();
     });
     studyTab.addEventListener('click', function () {
         setupStudyMode();
