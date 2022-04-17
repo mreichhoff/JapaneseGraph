@@ -1,4 +1,4 @@
-const cacheName = 'hanzigraph-1a2a800325d7b1bf4b66e89220c32110f0e301e2';
+const cacheName = 'jpgraph-1a2a800325d7b1bf4b66e89220c32110f0e301e2';
 self.addEventListener('fetch', (e) => {
     if (e.request.method === 'GET') {
         e.respondWith((async () => {
