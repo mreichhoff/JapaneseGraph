@@ -297,7 +297,7 @@ let addDeletedKey = function (key) {
     //update handler clear the key on any other devices
     if (authenticatedUser) {
         const db = getDatabase();
-        const flashcardRef = ref(db, `users/${authenticatedUser.uid}/deleted/zh-CN`);
+        const flashcardRef = ref(db, `users/${authenticatedUser.uid}/deleted/ja-JP`);
         let updates = {};
         updates[sanitizeKey(key)] = true;
         update(flashcardRef, updates);
@@ -398,7 +398,7 @@ let initialize = function () {
                     }
                 }
             });
-            const deletedFlashcardRef = ref(db, `users/${authenticatedUser.uid}/deleted/zh-CN`);
+            const deletedFlashcardRef = ref(db, `users/${authenticatedUser.uid}/deleted/ja-JP`);
             onValue(deletedFlashcardRef, (snapshot) => {
                 const data = snapshot.val() || {};
                 let madeChanges = false;

@@ -287,13 +287,7 @@ let initialize = function () {
             graphSelector.value = state.currentGraph;
         }
         levelSelector.value = oldState.level;
-        //oldState.kanji should always have length >= 1
-        updateGraph(oldState.kanji[0], oldState.level);
-        for (let i = 1; i < oldState.kanji.length; i++) {
-            if (kanji[oldState.kanji[i]]) {
-                addToExistingGraph(oldState.kanji[i], oldState.level);
-            }
-        }
+        buildGraph(oldState.kanji, oldState.level);
         if (oldState.word) {
             setupExamples(oldState.word);
         }
@@ -346,28 +340,57 @@ let makeSentenceNavigable = function (text, container, noExampleChange) {
     return anchorList;
 };
 
+let addEdges = function (word) {
+    for (let i = 0; i < word.length; i++) {
+        let curr = word[i];
+        if (!kanji[curr]) { continue; }
+        for (let j = 0; j < word.length; j++) {
+            if (i === j || !kanji[word[j]]) { continue; }
+            if (!kanji[curr].edges[word[j]]) {
+                kanji[curr].edges[word[j]] = {
+                    // TODO stop hardcoding 5
+                    word_level: 5,
+                    char_level: 5,
+                    words: []
+                };
+            }
+            // not that efficient, but we almost never see more than 5 items in words, so NBD
+            if (kanji[curr].edges[word[j]].words.indexOf(word) < 0) {
+                kanji[curr].edges[word[j]].words.push(word);
+            }
+        }
+    }
+};
+
+// build a graph based on a word rather than just a character like updateGraph
+let buildGraph = function (value, maxLevel) {
+    let ranUpdate = false;
+    // we don't necessarily populate all via the script
+    addEdges(value);
+    // TODO: add non-kanji words in `sentences` to wordSet and definitions
+    // then, add an else on the `wordSet.has(value)` for when we don't have it.
+    // In that case, fetch definition + examples. Ideally make it rare to enter
+    // a word and have it not find something for it. Also add not found handling
+    for (let i = 0; i < value.length; i++) {
+        if (kanji[value[i]]) {
+            if (!ranUpdate) {
+                ranUpdate = true;
+                updateGraph(value[i], maxLevel);
+            } else {
+                addToExistingGraph(value[i], maxLevel);
+            }
+        }
+    }
+};
+
 kanjiSearchForm.addEventListener('submit', function (event) {
     event.preventDefault();
     let value = kanjiBox.value;
     let maxLevel = levelSelector.value;
-    if (value && wordSet.has(value)) {
+    if (value && (wordSet.has(value) || definitions[value])) {
         notFoundElement.style.display = 'none';
         updateUndoChain();
-        let ranUpdate = false;
-        // TODO: add non-kanji words in `sentences` to wordSet and definitions
-        // then, add an else on the `wordSet.has(value)` for when we don't have it.
-        // In that case, fetch definition + examples. Ideally make it rare to enter
-        // a word and have it not find something for it. Also add not found handling
-        for (let i = 0; i < value.length; i++) {
-            if (kanji[value[i]]) {
-                if (!ranUpdate) {
-                    ranUpdate = true;
-                    updateGraph(value[0], maxLevel);
-                } else {
-                    addToExistingGraph(value[i], maxLevel);
-                }
-            }
-        }
+        buildGraph(value, maxLevel)
         setupExamples([value]);
         persistState();
         updateVisited([value]);
@@ -388,12 +411,7 @@ previousKanjiButton.addEventListener('click', function () {
     }
     let next = undoChain.pop();
     let maxLevel = levelSelector.value;
-    updateGraph(next.kanji[0], maxLevel);
-    for (let i = 1; i < next.kanji.length; i++) {
-        if (kanji[next.kanji[i]]) {
-            addToExistingGraph(next.kanji[i], maxLevel);
-        }
-    }
+    buildGraph(next.kanji, maxLevel);
     if (next.word) {
         setupExamples(next.word);
     }

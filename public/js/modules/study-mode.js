@@ -62,7 +62,14 @@ const cardRenderers = {
     },
     'cloze': function (currentCard) {
         taskDescriptionElement.innerText = `Can you replace ${clozePlaceholder} below to match these texts?`;
-        let clozedSentence = currentCard.ja.map(x => x === currentCard.vocabOrigin ? clozePlaceholder : x).join('');
+        let clozedSentence = '';
+        if (currentCard.vocabOrigin.length === 1) {
+            clozedSentence = currentCard.ja.join('');
+            clozedSentence = clozedSentence.replaceAll(currentCard.vocabOrigin, x => clozePlaceholder);
+        }
+        else {
+            clozedSentence = currentCard.ja.map(x => x === currentCard.vocabOrigin ? clozePlaceholder : x).join('');
+        }
         let clozeContainer = document.createElement('p');
         clozeContainer.className = 'cloze-container';
         let aList = makeSentenceNavigable(clozedSentence, clozeContainer);
