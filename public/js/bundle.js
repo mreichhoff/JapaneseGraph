@@ -21563,6 +21563,8 @@
     const menuButton = document.getElementById('menu-button');
     const menuContainer = document.getElementById('menu-container');
     const menuExitButton = document.getElementById('menu-exit-button');
+    const showTranscriptCheckbox = document.getElementById('show-transcript');
+    const toggleTranscriptLabel = document.getElementById('toggle-transcript-label');
 
     let getTtsVoice = function () {
         //use the first-encountered ja-JP voice for now
@@ -21643,7 +21645,7 @@
             let exampleHolder = document.createElement('li');
             let jaHolder = document.createElement('p');
             let exampleText = examples[i].ja.join('');
-            let aList = makeSentenceNavigable(exampleText, jaHolder, true);
+            let aList = makeSentenceNavigableWithTranscription(examples[i], jaHolder);
             jaHolder.className = 'ja-example example-line';
             addTextToSpeech(jaHolder, exampleText, aList);
             exampleHolder.appendChild(jaHolder);
@@ -21804,6 +21806,92 @@
         matchMedia("(prefers-color-scheme: light)").addEventListener("change", updateColorScheme);
     };
 
+    // oh no, what have I done
+    let parseExample = function (example) {
+        let result = [];
+        if (!example.fu) {
+            for (let i = 0; i < example.ja.length; i++) {
+                result.push({ text: example.ja[i] });
+            }
+            return result;
+        }
+        let splitByTranscripts = example.fu.split('[');
+        for (let i = 0; i < splitByTranscripts.length; i++) {
+            if (splitByTranscripts[i].includes(']')) {
+                let splitByEndBracket = splitByTranscripts[i].split(']');
+                let splitByBar = splitByEndBracket[0].split('|');
+                let kanji = splitByBar[0];
+                for (let j = 0; j < kanji.length; j++) {
+                    if (j + 1 < splitByBar.length) {
+                        result.push({
+                            text: kanji[j], transcription: splitByBar[j + 1]
+                        });
+                    } else {
+                        result.push({ text: kanji[j] });
+                    }
+                }
+                if (splitByEndBracket.length > 1) {
+                    for (let j = 0; j < splitByEndBracket[1].length; j++) {
+                        result.push({
+                            text: splitByEndBracket[1][j]
+                        });
+                    }
+                }
+            } else {
+                for (let j = 0; j < splitByTranscripts[i].length; j++) {
+                    result.push({
+                        text: splitByTranscripts[i][j]
+                    });
+                }
+            }
+        }
+        return result;
+    };
+
+    let makeSentenceNavigableWithTranscription = function (example, container) {
+        let sentenceContainer = document.createElement('span');
+        sentenceContainer.className = "sentence-container";
+        let text = parseExample(example);
+        let anchorList = [];
+        for (let i = 0; i < text.length; i++) {
+            (function (character) {
+                let a = document.createElement('a');
+                if (character.transcription) {
+                    let transcriptElement = document.createElement('ruby');
+                    transcriptElement.textContent = character.text;
+                    let openingRp = document.createElement('rp');
+                    openingRp.textContent = '(';
+                    transcriptElement.appendChild(openingRp);
+                    let rt = document.createElement('rt');
+                    rt.textContent = character.transcription;
+                    transcriptElement.appendChild(rt);
+                    let closingRp = document.createElement('rp');
+                    closingRp.textContent = ')';
+                    transcriptElement.appendChild(closingRp);
+                    a.appendChild(transcriptElement);
+                } else {
+                    a.textContent = character.text;
+                }
+                if (kanji[character.text]) {
+                    a.className = 'navigable';
+                }
+                a.addEventListener('click', function () {
+                    if (kanji[character.text]) {
+                        if (currentKanji && !currentKanji.includes(character.text)) {
+                            updateUndoChain();
+                            updateGraph(character.text, levelSelector.value);
+                        }
+                        persistState();
+                    }
+                });
+                anchorList.push(a);
+                sentenceContainer.appendChild(a);
+            }(text[i]));
+        }
+        container.appendChild(sentenceContainer);
+        return anchorList;
+    };
+
     let makeSentenceNavigable = function (text, container, noExampleChange) {
         let sentenceContainer = document.createElement('span');
         sentenceContainer.className = "sentence-container";
@@ -21918,6 +22006,14 @@
             setupExamples(next.word);
         }
         persistState();
+    });
+    showTranscriptCheckbox.addEventListener('change', function () {
+        let toggleLabel = toggleTranscriptLabel;
+        if (showTranscriptCheckbox.checked) {
+            toggleLabel.innerText = 'Turn off furigana in examples';
+        } else {
+            toggleLabel.innerText = 'Turn on furigana in examples';
+        }
     });
     exploreTab.addEventListener('click', function () {
         exampleContainer.removeAttribute('style');

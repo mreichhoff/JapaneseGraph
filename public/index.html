@@ -52,6 +52,7 @@
                 </div>
                 <div style="display:none" id="not-found-message">😞 That word was not found. Please try another.</div>
                 <div id="recommendations-container" class="recommendations" style="display:none"></div>
+                <input id="show-transcript" type="checkbox" style="display:none" />
                 <ul id="examples">
                     <li class="walkthrough">
                         <!-- i18n :-( -->
@@ -344,6 +345,11 @@
             <div id="signin" class="menu-item">
                 <a id="signin-button" class="authn-button" href="login.html">Sign in</a>
                 <a id="signout-button" class="authn-button" style="display:none">Sign out</a>
+            </div>
+            <div class="menu-item">
+                <label id="toggle-transcript-label" class="menu-item-text menu-item-clickable" for="show-transcript">
+                    Turn on furigana in examples
+                </label>
             </div>
             <div class="menu-item">
                 <label class="menu-item-text" for="level-selector">Choose max level in the graph:</label>
