@@ -317,7 +317,7 @@ a.navigable:hover {
 }
 
 #show-transcript:checked~* rt {
-    display: ruby-text;
+    display: revert;
 }
 
 #controls {
