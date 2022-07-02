@@ -1,7 +1,9 @@
 # JapaneseGraph
 A port of HanziGraph for Japanese. Even more WIP than HanziGraph.
 
-An early version of the site [is available](https://japanesegraph.com/).
+An early version of the site [is available](https://japanesegraph.com/). 
+
+You can also see [the reddit discussion](https://www.reddit.com/r/LearnJapanese/comments/u5n2xf/learning_kanji_through_the_words_that_connect_them/) or [the discussion on tofugo](https://www.tofugu.com/japanese-learning-resources-database/japanese-graph/).
 
 ## Acknowledgements
 The examples came from [Tatoeba](https://tatoeba.org), which releases data
