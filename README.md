@@ -1,5 +1,5 @@
 # JapaneseGraph
-A port of HanziGraph for Japanese. Even more WIP than HanziGraph.
+A port of [HanziGraph](https://github.com/mreichhoff/HanziGraph) for Japanese. Even more WIP than HanziGraph.
 
 An early version of the site [is available](https://japanesegraph.com/). 
 
