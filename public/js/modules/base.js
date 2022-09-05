@@ -66,7 +66,7 @@ const toggleTranscriptLabel = document.getElementById('toggle-transcript-label')
 
 let getTtsVoice = function () {
     //use the first-encountered ja-JP voice for now
-    return speechSynthesis.getVoices().find(voice => voice.lang === "ja-JP");
+    return speechSynthesis.getVoices().find(voice => voice.lang === "ja-JP" || voice.lang === 'ja_JP');
 };
 let ttsVoice = getTtsVoice();
 //TTS voice option loading appears to differ in degree of asynchronicity by browser...being defensive
@@ -79,7 +79,7 @@ let runTextToSpeech = function (text, anchors) {
     //TTS voice option loading appears to differ in degree of asynchronicity by browser...being defensive
     if (ttsVoice) {
         let utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "ja-JP";
+        utterance.lang = ttsVoice.lang;
         utterance.voice = ttsVoice;
         speechSynthesis.speak(utterance);
     }
