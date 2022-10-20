@@ -7,13 +7,14 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
-    color: white;
+    color: rgba(255, 255, 255, 0.87);
     background: #121212;
-    font-family: Times, serif;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 300;
 }
 
 a {
-    color: white;
+    color: rgba(255, 255, 255, 0.87);
 }
 
 rt {
@@ -22,14 +23,19 @@ rt {
     display: none;
 }
 
-#container {
-    display: flex;
+#main-container {
     width: 100%;
     height: 100%;
 }
 
+#container {
+    display: flex;
+    /* 44 for the height of the header plus 1 for the border */
+    height: calc(100% - 45px);
+}
+
 #control-pane {
-    width: 35%;
+    width: 40%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -37,15 +43,20 @@ rt {
     border-right: 1px solid #333;
 }
 
-#graph {
-    width: 65%;
+#graph-container {
+    width: 60%;
     height: 100%;
-    background: black;
+    background: #020202;
+}
+
+#graph {
+    height: calc(100% - 60px);
 }
 
 .header {
     display: flex;
-    margin-bottom: 4px;
+    height: 44px;
+    border-bottom: 1px solid #333;
 }
 
 .menu-container {
@@ -66,6 +77,7 @@ rt {
 
 .main-header {
     flex: 1;
+    font-family: Times, serif;
     text-align: center;
 }
 
@@ -147,11 +159,28 @@ rt {
 .tabs {
     display: flex;
     margin-bottom: 10px;
+    border-bottom: 1px solid #333;
+    font-weight: 400;
+    font-family: Times, serif;
 }
 
-.tabs div {
-    flex: 1;
-    padding: 12px;
+.tab {
+    font-size: 18px;
+    padding: 10px;
+    width: 50%;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.tab.left {
+    border-right: 1px solid #333;
+}
+
+.tab.active {
+    font-weight: bold;
+    background-color: #3336;
 }
 
 .menu {
@@ -162,7 +191,7 @@ rt {
 }
 
 .menu-item {
-    font-size: 22px;
+    font-size: 18px;
     height: 60px;
     cursor: pointer;
 }
@@ -189,26 +218,30 @@ rt {
 
 .recommendations {
     margin: 0;
+    font-size: 14px;
 }
 
 .recommendation {
     margin-right: 10px;
     cursor: pointer;
     font-size: 22px;
-    font-family: sans-serif;
 }
 
 .recommendation-message {
-    font-size: 16px;
     margin-right: 4px;
 }
 
-#kanji-choose {
-    width: 100%;
-}
-
 .search-box {
-    width: 150px;
+    font-size: 20px;
+    font-weight: 300;
+    width: 100%;
+    height: 34px;
+    border-radius: 10px;
+    background-color: rgba(74, 74, 74, 0.9);
+    border: 1px solid #3333;
+    color: rgba(255, 255, 255, 0.87);
+    padding-left: 12px;
+    box-shadow: 0 2px 3px 1px #3333;
 }
 
 .faq-link {
@@ -221,6 +254,11 @@ rt {
     margin-right: auto;
     max-width: 80%;
     font-size: 18px
+}
+
+.faq h3 {
+    font-family: Times, serif;
+    font-size: 20px;
 }
 
 ul {
@@ -243,23 +281,30 @@ h2 span {
 }
 
 .circle {
-    width: 46px;
-    height: 44px;
+    width: 40px;
+    height: 36px;
     border-radius: 50%;
     margin-bottom: 4px;
-    margin-left: 1px;
-    margin-right: 1px;
-    font-size: 14px;
+    font-size: 12px;
     text-align: center;
-    line-height: 44px;
+    line-height: 36px;
     color: black;
+    margin-top: 4px;
+    margin-left: 0.5px;
+    margin-right: 0.5px;
 }
 
 #legend {
     font-size: 14px;
     text-align: center;
-    margin-left: 8px;
-    margin-right: 8px;
+    margin: 0;
+    height: 60px;
+    background-color: #020202;
+}
+
+#legend p {
+    margin: 0;
+    padding: 0;
 }
 
 #level-container {
@@ -273,11 +318,12 @@ h2 span {
     margin-top: 0;
 }
 
-#examples h2 {
+.word-header {
     margin-top: 16px;
+    border-bottom: 1px solid #333;
 }
 
-#examples ul li {
+.example {
     font-size: 16px;
     margin-bottom: 12px;
 }
@@ -287,31 +333,27 @@ h2 span {
     margin-right: 4px;
 }
 
-p.example-line {
-    margin-top: 4px;
-    margin-bottom: 4px;
-    opacity: 0.9;
+.target {
+    font-size: 24px;
+    font-weight: 400;
+    display: flex;
+    opacity: 1;
+    margin: 4px 0;
 }
 
-p.ja-example {
-    font-size: 28px;
-    display: flex;
-    font-family: sans-serif;
-    opacity: 1;
+.base {
+    margin: 4px 0;
+    opacity: 0.9;
+    font-size: 14px;
 }
 
 a.navigable {
     cursor: pointer;
 }
 
-a.navigable:hover {
-    font-weight: bold;
-}
-
 .context {
     margin: 0;
     margin-bottom: 12px;
-    font-family: sans-serif;
     font-size: 14px;
     opacity: 0.8;
 }
@@ -329,16 +371,12 @@ a.navigable:hover {
 .control {
     margin: 0;
     line-height: 28px;
+    width: 100%;
 }
 
-.control.center {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#example-container {
+#explore-container {
     flex-grow: 1;
-    margin-left: 8px;
+    margin-left: 14px;
     margin-right: 8px;
 }
 
@@ -346,63 +384,29 @@ a.navigable:hover {
     flex-grow: 1;
     margin-left: 8px;
     margin-right: 8px;
+    text-align: center;
 }
 
-#cards-due {
-    max-width: fit-content;
+#show-answer-button {
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 .sentence-container {
-    max-width: 80%;
+    width: calc(100% - 38px);
 }
 
 .walkthrough p {
-    font-size: 18px;
+    font-size: 16px;
     margin-top: 20px;
     margin-bottom: 20px;
 }
 
-.text-button {
-    font-size: 16px;
-    background-color: white;
-    margin-left: 4px;
-    padding: 6px;
-    color: black;
-    border-radius: 6px;
-    font-family: Times, serif;
-    user-select: none;
-    white-space: nowrap;
-    -webkit-user-select: none;
-}
-
-p .text-button.listen {
-    align-self: flex-start;
-    vertical-align: top;
-}
-
-h2 .text-button {
-    vertical-align: middle;
-}
-
 /*TODO refactor this...too much repetition, selectors too specific */
-#examples ul.definition li {
+.definition {
     margin-top: 4px;
     margin-bottom: 4px;
     font-size: 16px;
-}
-
-.tab {
-    font-size: 18px;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.tab.active {
-    font-weight: bold;
-    border-bottom: 1px solid #eee;
-    background-color: #333;
 }
 
 #study-call-to-action {
@@ -414,31 +418,27 @@ h2 .text-button {
 }
 
 .study-call-to-action {
-    text-align: center;
-    background-color: #eeee;
-    color: black;
-    padding: 8px;
-    cursor: pointer;
-    font-size: 20px;
-    border-radius: 6px;
-    user-select: none;
-    -webkit-user-select: none;
+    margin: 20px auto;
+    font-size: 18px;
 }
 
 #result-buttons {
     width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
 #result-buttons li {
-    width: 75%;
+    width: 50%;
     padding: 8px;
     text-align: center;
     cursor: pointer;
     margin-bottom: 20px;
-    border-radius: 10px;
     margin-right: auto;
     margin-left: auto;
     font-size: 20px;
+    height: 50px;
+    line-height: 50px;
 }
 
 #wrong-button {
@@ -459,7 +459,9 @@ h2 .text-button {
 
 #card-question-container {
     display: flex;
-    font-size: 28px;
+    font-size: 24px;
+    justify-content: center;
+    font-weight: 400;
 }
 
 .cloze-container {
@@ -469,20 +471,13 @@ h2 .text-button {
 .cloze-placeholder {
     color: #ff635f;
     font-weight: bold;
-    letter-spacing: 10px;
-    margin-left: 10px;
-}
-
-.sentence-container a {
-    font-size: 28px;
-    vertical-align: text-top;
-    font-family: sans-serif;
 }
 
 #card-answer {
     font-size: 24px;
     width: 95%;
     display: flex;
+    justify-content: center;
 }
 
 .card-detail {
@@ -498,7 +493,6 @@ h2 .text-button {
 
 .related-cards {
     font-size: 20px;
-    font-family: sans-serif;
 }
 
 p.related-card {
@@ -507,19 +501,22 @@ p.related-card {
 
 .related-card-performance {
     font-size: 16px;
-    font-family: Times, serif;
 }
 
 #delete-card-button {
-    margin-right: auto;
-    margin-left: auto;
     text-align: center;
-    width: 50%;
-    margin-top: 30px;
+    margin-top: 50px;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 #explain-text {
-    margin-top: 0;
+    margin: 0;
+    font-size: 14px;
+}
+
+#cards-due {
+    margin-top: 20px;
 }
 
 main.auth-form {
@@ -597,10 +594,6 @@ select {
     font-size: 16px;
 }
 
-.stats-detail {
-    font-family: sans-serif;
-}
-
 .result-indicator-wrong {
     background-color: #ff635f;
     color: black;
@@ -612,29 +605,8 @@ select {
 }
 
 @media (hover: hover) {
-    .text-button:hover {
-        color: black;
-        cursor: pointer;
-        background-color: #68aaee;
-        transition: background-color 300ms;
-    }
-
-    .tab:hover {
-        background-color: #3333;
-    }
-
-    .tab.active:hover {
-        background-color: #333;
-    }
-
-    #result-buttons li:hover {
-        border: 1px solid white;
-        transition: border 500ms;
-    }
-
-    #show-answer-button:hover {
-        background-color: #68aaee;
-        transition: background-color 300ms;
+    a.navigable:hover {
+        font-weight: bold;
     }
 }
 
@@ -669,12 +641,38 @@ select {
     text-align: right;
 }
 
-@media (max-width:1024px) {
-    #control-pane {
-        width: 50%;
-    }
+.volume {
+    box-sizing: border-box;
+    position: relative;
+    display: inline-block;
+    transform: scale(0.9);
+    width: 22px;
+    height: 22px;
+    border: 2px solid;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-left: 16px;
+}
 
-    #graph {
+.volume::before {
+    content: "";
+    display: inline-block;
+    box-sizing: border-box;
+    position: absolute;
+    width: 0;
+    height: 10px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 6px solid;
+    top: 4px;
+    left: 7px
+}
+
+@media (max-width:1024px) {
+
+    #graph-container,
+    #control-pane {
         width: 50%;
     }
 
@@ -695,22 +693,22 @@ select {
 
     #control-pane {
         width: 100%;
-        height: 50%;
+        height: calc(50% - 2px);
         border-right: 0;
         border-bottom: 1px solid #333;
     }
 
-    #graph {
+    #explore-container {
+        margin-left: 10px;
+    }
+
+    #graph-container {
         width: 100%;
         height: 50%;
     }
 
     h1 {
         font-size: 26px;
-    }
-
-    .tab {
-        font-size: 16px;
     }
 
     .study-call-to-action {
@@ -727,11 +725,11 @@ select {
     }
 
     #card-question-container a {
-        font-size: 30px;
+        font-size: 26px;
     }
 
-    p.ja-example {
-        font-size: 30px;
+    .target {
+        font-size: 26px;
     }
 
     .bar-chart {
@@ -740,32 +738,43 @@ select {
         font-size: 12px;
     }
 
-    .menu-item {
-        font-size: 20px;
-    }
-
     .menu {
         width: 98%;
         margin-left: auto;
         margin-right: auto;
     }
+
+    #result-buttons li {
+        width: 80%;
+    }
+
+    #graph {
+        height: calc(100% - 38px);
+    }
+
+    #legend {
+        font-size: 10px;
+        height: 38px;
+    }
+
+    /* circle becomes a misnomer */
+    .circle {
+        height: 20px;
+        line-height: 20px;
+        border-radius: 12px;
+        font-size: 10px;
+        margin-bottom: 0;
+        margin-top: 0;
+    }
 }
 
 @media (max-width:360px) {
-    .text-button {
-        font-size: 12px;
-    }
-
     .study-call-to-action {
         font-size: 14px;
     }
 
     h2 {
         font-size: 24px;
-    }
-
-    .menu-item {
-        font-size: 18px;
     }
 
     #controls input[type=submit] {
@@ -791,10 +800,18 @@ main.stats {
 main.stats section h2 {
     font-size: 20px;
     font-family: Times, serif;
+    font-weight: 300;
+}
+
+main.stats section h3 {
+    font-size: 16px;
+    font-weight: 300;
+    opacity: 0.85;
 }
 
 main.stats section p {
-    font-size: 18px;
+    font-size: 14px;
+    opacity: 0.8;
 }
 
 #hourly-graph {
@@ -806,7 +823,6 @@ main.stats section p {
 }
 
 .calendar-day {
-    border: 1px solid black;
     color: black;
     background-color: #333;
     width: 16px;
@@ -855,40 +871,49 @@ main.stats section p {
 }
 
 @media (prefers-color-scheme: light) {
+    .header {
+        border-bottom: 1px solid #3333;
+    }
+
+    .search-box {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: black;
+        box-shadow: 0 2px 3px 1px #eeee;
+    }
+
+    .word-header {
+        margin-top: 16px;
+        border-bottom: 1px solid #3333;
+    }
+
     #control-pane {
         border-right: 1px solid #3333;
     }
 
-    .text-button {
-        background-color: #eee;
-        border: 1px solid #3333;
+    .tabs {
+        border-bottom: 1px solid #3333;
     }
 
-    .tab {
-        background-color: #eee;
+    .tab.left {
+        border-right: 1px solid #3333;
     }
 
     .tab.active {
-        border-bottom: 1px solid #3333;
         background-color: white;
     }
 
-    .study-call-to-action {
-        background-color: #eee;
-        border: 1px solid #3333;
-    }
-
     body {
-        color: black;
-        background: white;
+        color: rgba(0, 0, 0, 0.87);
+        background: #fcfcfc;
     }
 
     a {
-        color: black;
+        color: rgba(0, 0, 0, 0.87);
     }
 
-    #graph {
-        background: #f9f9f9;
+    #legend,
+    #graph-container {
+        background: white;
     }
 
     .exit-arrow::before {
@@ -904,23 +929,16 @@ main.stats section p {
     }
 }
 
-@media (prefers-color-scheme: light) and (hover: hover) {
-    .tab:hover {
-        background-color: #f5f5f5;
-    }
-
-    .tab.active:hover {
-        background-color: white;
-    }
-
-    #result-buttons li:hover {
-        transition: border 500ms;
-    }
-}
-
 @media (prefers-color-scheme: light) and (max-width:664px) {
     #control-pane {
         border-bottom: 1px solid #3333;
         border-right: 0;
     }
+}
+
+.add-button {
+    color: #6de200;
+    cursor: pointer;
+    float: right;
+    margin-right: 20px;
 }

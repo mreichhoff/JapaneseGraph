@@ -9,7 +9,6 @@ let maxExamples = 5;
 let currentExamples = {};
 let currentKanji = null;
 let currentWord = null;
-let undoChain = [];
 let tabs = {
     explore: 'explore',
     study: 'study'
@@ -18,6 +17,7 @@ let activeTab = tabs.explore;
 
 let characterLegend = ['N5', 'N4', 'N3', 'N2', 'N1'];
 let freqLegend = ['Top1k', 'Top2k', 'Top4k', 'Top7k', 'Top10k'];
+const legendContainer = document.getElementById('legend');
 let legendElements = document.querySelectorAll('div.circle');
 let graphOptions = {
     character: {
@@ -33,7 +33,8 @@ let getActiveGraph = function () {
 }
 
 //top-level section container
-const mainContainer = document.getElementById('container');
+const mainContainer = document.getElementById('main-container');
+const graphContainer = document.getElementById('graph-container');
 
 const exploreTab = document.getElementById('show-explore');
 const studyTab = document.getElementById('show-study');
@@ -45,15 +46,16 @@ const studyContainer = document.getElementById('study-container');
 
 //explore tab items
 const examplesList = document.getElementById('examples');
-const exampleContainer = document.getElementById('example-container');
+const exampleContainer = document.getElementById('explore-container');
 //explore tab navigation controls
 const kanjiBox = document.getElementById('kanji-box');
 const kanjiSearchForm = document.getElementById('kanji-choose');
-const previousKanjiButton = document.getElementById('previousKanjiButton');
 const notFoundElement = document.getElementById('not-found-message');
 
 //recommendations
 const recommendationsDifficultySelector = document.getElementById('recommendations-difficulty');
+
+const walkThrough = document.getElementById('walkthrough');
 
 //menu items
 const graphSelector = document.getElementById('graph-selector');
@@ -87,15 +89,14 @@ let runTextToSpeech = function (text, anchors) {
 
 let addTextToSpeech = function (holder, text, aList) {
     let textToSpeechButton = document.createElement('span');
-    textToSpeechButton.className = 'text-button listen';
-    textToSpeechButton.textContent = 'Listen';
+    textToSpeechButton.className = 'volume';
     textToSpeechButton.addEventListener('click', runTextToSpeech.bind(this, text, aList), false);
     holder.appendChild(textToSpeechButton);
 };
 let addSaveToListButton = function (holder, text) {
-    let buttonTexts = ['In your study list!', 'Add to study list'];
+    let buttonTexts = ['✔️', '+'];
     let saveToListButton = document.createElement('span');
-    saveToListButton.className = 'text-button';
+    saveToListButton.className = 'add-button';
     saveToListButton.textContent = inStudyList(text) ? buttonTexts[0] : buttonTexts[1];
     saveToListButton.addEventListener('click', function () {
         addCards(currentExamples, text);
@@ -105,20 +106,45 @@ let addSaveToListButton = function (holder, text) {
 };
 
 let persistState = function () {
-    let localUndoChain = undoChain.length > 5 ? undoChain.slice(0, 5) : undoChain;
     localStorage.setItem('state', JSON.stringify({
-        kanji: currentKanji,
         word: currentWord,
-        level: levelSelector.value,
-        undoChain: localUndoChain,
         activeTab: activeTab,
         currentGraph: activeGraph.display,
         graphPrefix: activeGraph.prefix
     }));
 };
+
+function parseUrl(path) {
+    if (path[0] === '/') {
+        path = path.substring(1);
+    }
+    const segments = path.split('/');
+    if (segments.length === 1) {
+        return { word: segments[0] };
+    }
+    return null;
+}
+function loadState(word) {
+    const term = decodeURIComponent(word || '');
+    kanjiBox.value = term;
+    search(term, levelSelector.value, true);
+}
+
+window.onpopstate = (event) => {
+    const state = event.state;
+    if (!state || !state.word) {
+        walkThrough.removeAttribute('style');
+        examplesList.innerHTML = '';
+        hanziBox.value = '';
+        return;
+    }
+    loadState(state.word);
+};
+
 let setupDefinitions = function (definitionList, definitionHolder) {
     for (let i = 0; i < definitionList.length; i++) {
         let definitionItem = document.createElement('li');
+        definitionItem.classList.add('definition');
         let definitionContent = definitionList[i].join('; ');
         definitionItem.textContent = definitionContent;
         definitionHolder.appendChild(definitionItem);
@@ -141,21 +167,23 @@ let findExamples = function (word) {
 let setupExampleElements = function (examples, exampleList) {
     for (let i = 0; i < examples.length; i++) {
         let exampleHolder = document.createElement('li');
+        exampleHolder.classList.add('example');
         let jaHolder = document.createElement('p');
         let exampleText = examples[i].ja.join('');
         let aList = makeSentenceNavigableWithTranscription(examples[i], jaHolder);
-        jaHolder.className = 'ja-example example-line';
+        jaHolder.className = 'target';
         addTextToSpeech(jaHolder, exampleText, aList);
         exampleHolder.appendChild(jaHolder);
         let enHolder = document.createElement('p');
         enHolder.textContent = examples[i].en;
-        enHolder.className = 'example-line';
+        enHolder.className = 'base';
         exampleHolder.appendChild(enHolder);
         exampleList.appendChild(exampleHolder);
     }
 };
 let setupExamples = function (words) {
     currentExamples = {};
+    walkThrough.style.display = 'none';
     //TODO this mixes markup modification and example finding
     //refactor needed
     while (examplesList.firstChild) {
@@ -167,18 +195,20 @@ let setupExamples = function (words) {
 
         let item = document.createElement('li');
         let wordHolder = document.createElement('h2');
+        wordHolder.classList.add('word-header')
         wordHolder.textContent = words[i];
         addTextToSpeech(wordHolder, words[i], []);
         addSaveToListButton(wordHolder, words[i]);
         item.appendChild(wordHolder);
 
         let definitionHolder = document.createElement('ul');
-        definitionHolder.className = 'definition';
+        definitionHolder.className = 'definitions';
         let definitionList = definitions[words[i]] || [];
         setupDefinitions(definitionList, definitionHolder);
         item.appendChild(definitionHolder);
 
         let contextHolder = document.createElement('p');
+        contextHolder.className = 'context';
         //TODO not so thrilled with 'context' as the name here
         contextHolder.className = 'context';
         contextHolder.innerText += "Previously: ";
@@ -210,10 +240,6 @@ let setupExamples = function (words) {
     }
     currentWord = words;
 };
-let updateUndoChain = function () {
-    //push clones onto the stack
-    undoChain.push({ kanji: [...currentKanji], word: (currentWord ? [...currentWord] : currentWord) });
-};
 
 //TODO can this be combined with the definition rendering part?
 let getCardFromDefinitions = function (text, definitionList) {
@@ -231,27 +257,27 @@ let getCardFromDefinitions = function (text, definitionList) {
 let nodeTapHandler = function (evt) {
     let id = evt.target.id();
     let maxLevel = levelSelector.value;
-    updateUndoChain();
     //not needed if currentKanji contains id, which would mean the nodes have already been added
     //includes O(N) but currentKanji almost always < 10 elements
     if (currentKanji && !currentKanji.includes(id)) {
         addToExistingGraph(id, maxLevel);
     }
     setupExamples([id]);
-    persistState();
+    persistNavigationState();
     exploreTab.click();
     mainHeader.scrollIntoView();
     updateVisited([id]);
+    notFoundElement.style.display = 'none';
 };
 let edgeTapHandler = function (evt) {
     let words = evt.target.data('words');
-    updateUndoChain();
     setupExamples(words);
-    persistState();
+    persistNavigationState();
     //TODO toggle functions
     exploreTab.click();
     mainHeader.scrollIntoView();
     updateVisited([evt.target.source().id(), evt.target.target().id()]);
+    notFoundElement.style.display = 'none';
 };
 let addToExistingGraph = function (character, maxLevel) {
     addToGraph(character, maxLevel);
@@ -263,7 +289,7 @@ let updateGraph = function (value, maxLevel) {
     let nextGraph = document.createElement("div");
     nextGraph.id = 'graph';
     //TODO: makes assumption about markup order
-    mainContainer.append(nextGraph);
+    graphContainer.insertBefore(nextGraph, legendContainer);
 
     if (value && kanji[value]) {
         initializeGraph(value, maxLevel, nextGraph, nodeTapHandler, edgeTapHandler);
@@ -272,34 +298,40 @@ let updateGraph = function (value, maxLevel) {
     }
 };
 
+let getAppropriateWord = function (urlState, historyState, storedState) {
+    return urlState ? urlState.word : historyState ? historyState.word : storedState ? storedState.word : '';
+};
+
 let initialize = function () {
-    let oldState = JSON.parse(localStorage.getItem('state'));
-    if (!oldState) {
+    let parsedUrl = null;
+    if (document.location.pathname !== '/') {
+        parsedUrl = parseUrl(document.location.pathname);
+    }
+    let oldState = JSON.parse(localStorage.getItem('state')) || {};
+    let word = getAppropriateWord(parsedUrl, history.state, oldState);
+
+    if (!word) {
         //graph chosen is default, no need to modify legend or dropdown
         //add a default graph on page load to illustrate the concept
         let defaultKanji = ["遠", "応", "援"];
         updateGraph(defaultKanji[Math.floor(Math.random() * defaultKanji.length)], levelSelector.value);
+        walkThrough.removeAttribute('style');
     } else {
-        if (state.currentGraph) {
-            let activeGraphKey = Object.keys(graphOptions).find(x => graphOptions[x].display === state.currentGraph);
+        if (oldState.currentGraph) {
+            // TODO so dumb, just save the key and put values on this
+            let activeGraphKey = Object.keys(graphOptions).find(x => graphOptions[x].display === oldState.currentGraph);
             activeGraph = graphOptions[activeGraphKey];
             legendElements.forEach((x, index) => {
                 x.innerText = activeGraph.legend[index];
             });
-            graphSelector.value = state.currentGraph;
+            graphSelector.value = oldState.currentGraph;
         }
-        levelSelector.value = oldState.level;
-        buildGraph(oldState.kanji, oldState.level);
-        if (oldState.word) {
-            setupExamples(oldState.word);
-        }
-        undoChain = oldState.undoChain;
-        if (oldState.activeTab === tabs.study) {
-            //reallllllly need a toggle method
-            //this does set up the current card, etc.
-            studyTab.click();
-        }
-        persistState();
+        loadState(word);
+    }
+    if (oldState.activeTab === tabs.study) {
+        //reallllllly need a toggle method
+        //this does set up the current card, etc.
+        studyTab.click();
     }
     matchMedia("(prefers-color-scheme: light)").addEventListener("change", updateColorScheme);
 };
@@ -375,10 +407,7 @@ let makeSentenceNavigableWithTranscription = function (example, container) {
             }
             a.addEventListener('click', function () {
                 if (kanji[character.text]) {
-                    let updated = false;
                     if (currentKanji && !currentKanji.includes(character.text)) {
-                        updateUndoChain();
-                        updated = true;
                         updateGraph(character.text, levelSelector.value);
                     }
                     persistState();
@@ -406,20 +435,14 @@ let makeSentenceNavigable = function (text, container, noExampleChange) {
             }
             a.addEventListener('click', function () {
                 if (kanji[character]) {
-                    let updated = false;
                     if (currentKanji && !currentKanji.includes(character)) {
-                        updateUndoChain();
-                        updated = true;
                         updateGraph(character, levelSelector.value);
                     }
                     //enable seamless switching, but don't update if we're already showing examples for character
                     if (!noExampleChange && (!currentWord || (currentWord.length !== 1 || currentWord[0] !== character))) {
-                        if (!updated) {
-                            updateUndoChain();
-                        }
                         setupExamples([character]);
+                        persistNavigationState();
                     }
-                    persistState();
                 }
             });
             anchorList.push(a);
@@ -472,21 +495,32 @@ let buildGraph = function (value, maxLevel) {
         }
     }
 };
+let persistNavigationState = function () {
+    const newUrl = `/${currentWord}`;
+    history.pushState({
+        word: currentWord,
+    }, '', newUrl);
+    // keep UI state around too, I guess?
+    persistState();
+};
 
-kanjiSearchForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    let value = kanjiBox.value;
-    let maxLevel = levelSelector.value;
+let search = function (value, maxLevel, skipState) {
     if (value && (wordSet.has(value) || definitions[value])) {
         notFoundElement.style.display = 'none';
-        updateUndoChain();
         buildGraph(value, maxLevel);
         setupExamples([value]);
-        persistState();
+        if (!skipState) {
+            persistNavigationState();
+        }
         updateVisited([value]);
     } else {
         notFoundElement.removeAttribute('style');
     }
+};
+
+kanjiSearchForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    search(kanjiBox.value, levelSelector.value);
 });
 
 levelSelector.addEventListener('change', function () {
@@ -495,18 +529,6 @@ levelSelector.addEventListener('change', function () {
     updateGraph(currentKanji[currentKanji.length - 1], levelSelector.value);
 });
 
-previousKanjiButton.addEventListener('click', function () {
-    if (!undoChain.length) {
-        return;
-    }
-    let next = undoChain.pop();
-    let maxLevel = levelSelector.value;
-    buildGraph(next.kanji, maxLevel);
-    if (next.word) {
-        setupExamples(next.word);
-    }
-    persistState();
-});
 showTranscriptCheckbox.addEventListener('change', function () {
     let toggleLabel = toggleTranscriptLabel;
     if (showTranscriptCheckbox.checked) {
